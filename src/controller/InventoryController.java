@@ -2,6 +2,7 @@ package controller;
 
 import model.Inventory;
 import model.Product;
+import view.ConsoleColors;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -27,6 +28,21 @@ public class InventoryController {
             inventory.setInventory(newProducts);
         }catch (IOException e){
             System.out.println(e.getStackTrace());
+        }
+    }
+
+    public void writeToDB(Inventory inventory){
+        List<String> productsString = new ArrayList<>();
+        for (int i = 0; i < inventory.getInventory().size(); i++) {
+            if (!inventory.getInventory().get(i).getName().equals(DefaultProduct.getName())){
+                productsString.add(productToString(inventory.getInventory().get(i)));
+            }
+        }
+
+        try {
+            Files.write(Path.of("teste.txt"), productsString);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
     public Integer size(Inventory inventory){
@@ -56,13 +72,31 @@ public class InventoryController {
                 return inventory.getInventory().get(i);
             }
         }
-        System.out.printf("We are sorry, but %s is currently out of stock\n\n", name);
+        System.out.printf("Desculpe, mas %s não está diponível ou não existe\n\n", name);
         return DefaultProduct;
     }
-    public void printProduct(Product product){
-        System.out.printf("Name: %-12s \t Units: %d \t Price (R$/Unit): %.2f \n",
-                product.getName(), product.getAmount(), product.getPriceUnit());
+
+    public Product getProductByIdentifier(Integer identifier, Inventory inventory){
+
+        try{
+            printProduct(inventory.getInventory().get(identifier), identifier);
+            return inventory.getInventory().get(identifier);
+        }catch (IndexOutOfBoundsException e){
+            System.out.printf(ConsoleColors.RED+"Desculpe, mas %d não representa nenhum produto em nosso estoque\n\n"
+                    + ConsoleColors.BLACK, identifier);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return DefaultProduct;
     }
+    public void printProduct(Product product, int identifier){
+        System.out.printf("Identificador: %d \t Nome: %-12s  Unidades: %d \t Preço: (R$/Unit): %.2f \n",
+                identifier, product.getName(), product.getAmount(), product.getPriceUnit());
+    }
+    public String productToString(Product product){
+        return ""+product.getName()+", "+product.getAmount()+", "+product.getPriceUnit();
+    }
+
 
     public void removeOutOfStockProducts(Inventory inventory){
         for (int i = 0; i < inventory.getInventory().size(); i++) {
@@ -74,26 +108,46 @@ public class InventoryController {
             }
         }
     }
+    public void showProductThatContains(String wordLetterToFilter, Inventory inventory){
+        removeOutOfStockProducts(inventory);
 
-
+        System.out.println("------------------------------- RESULTADO DA PESQUISA ------------------------------");
+        Boolean productFound=false;
+        for (int i = 0; i < inventory.getInventory().size(); i++) {
+            if (!inventory.getInventory().get(i).getName().equals(DefaultProduct.getName())){
+                if (inventory.getInventory().size() > 0
+                        &&
+                        inventory.getInventory().get(i).getName().toLowerCase().contains(wordLetterToFilter.toLowerCase())){
+                    printProduct(inventory.getInventory().get(i), i);
+                    productFound= true;
+                }else if (!productFound){
+                    System.out.println("\t Produtos semelhantes não encontrados");
+                    productFound= true;
+                }
+            } else if (!(inventory.getInventory().size() > 0)) {
+                System.out.println("\t O Estoque está vazio");
+            }
+        }
+        System.out.println("------------------------------------------------------------------------------------\n");
+    }
 
     public void printAllProducts(Inventory inventory){
 
         removeOutOfStockProducts(inventory);
 
-        System.out.println("-------------------- INVENTORY SUMMARY-------------------");
+        System.out.println("-------------------------------- PRODUTOS DISPONÍVEIS ------------------------------");
         for (int i = 0; i < inventory.getInventory().size(); i++) {
             if (!inventory.getInventory().get(i).getName().equals(DefaultProduct.getName())){
                 if (inventory.getInventory().size() > 1){
-                    printProduct(inventory.getInventory().get(i));
+                    printProduct(inventory.getInventory().get(i), i);
                 }else {
-                    System.out.println("\tThe inventory is empty");
+                    System.out.println("\t O Estoque está vazio");
                 }
-            } else if (!(inventory.getInventory().size() > 1)) {
-                System.out.println("\tThe inventory is empty");
+            } else if (!(inventory.getInventory().size() > 0)) {
+                System.out.println("\t O Estoque está vazio");
             }
         }
-        System.out.println("---------------------------------------------------------\n");
+        System.out.println("------------------------------------------------------------------------------------\n");
     }
 
     public void deleteProductByName(String name, Inventory inventory){
@@ -106,17 +160,23 @@ public class InventoryController {
             }
         }
         if (!ProductFound){
-            System.out.printf("We are sorry, but %s was not found in your inventory.\n\n", name);
+            System.out.printf(ConsoleColors.RED+"Desculpe, mas %s não foi encontrado em estoque ou não existe.\n\n"
+                    + ConsoleColors.BLACK, name);
         }
     }
-    //    adiciona produto
-    //    edita produto
-    //    lista produtos
-    //    deleta produto
+    public void deleteProductByIdentifier(Integer identifier, Inventory inventory){
+        try{
+            String productName = inventory.getInventory().get(identifier).getName();
+            System.out.printf(ConsoleColors.RED+"%s foi removido com sucesso\n\n"
+                    + ConsoleColors.BLACK, productName);
+            inventory.getInventory().remove(identifier);
 
+        }catch (IndexOutOfBoundsException e){
+            System.out.printf(ConsoleColors.RED+"Desculpe, mas %d não representa nenhum produto em nosso estoque\n\n"
+                    + ConsoleColors.BLACK, identifier);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
 
-//    GABRIEL
-    //    cria arquivo de produtos
-    //    ler arquivo
-    //    editar arquivo
 }
