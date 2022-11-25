@@ -14,7 +14,7 @@ import java.util.Scanner;
 
 public class InventoryController {
     private final Product DefaultProduct = new Product("DefaultProduct",1,0.);
-    private static final String localDB = "inventory.csv";
+
     public void readFromDB(String path, Inventory inventory){
         try {
             List<String> lines = Files.readAllLines(Path.of(path));
@@ -38,7 +38,7 @@ public class InventoryController {
     }
 
     public void addProduct(Product product, Inventory inventory){
-        boolean ProductFound=false;
+        boolean ProductFound = false;
         for (int i = 0; i < size(inventory); i++) {
             ProductFound= inventory.getInventory().get(i).getName().trim().equalsIgnoreCase(product.getName().trim());
             if (ProductFound){
@@ -62,6 +62,7 @@ public class InventoryController {
         System.out.printf("We are sorry, but %s is currently out of stock\n\n", name);
         return DefaultProduct;
     }
+
     public void printProduct(Product product){
         System.out.printf("Name: %-12s \t Units: %d \t Price (R$/Unit): %.2f \n",
                 product.getName(), product.getAmount(), product.getPriceUnit());
@@ -84,7 +85,7 @@ public class InventoryController {
 
         removeOutOfStockProducts(inventory);
 
-        System.out.println("-------------------- INVENTORY SUMMARY-------------------");
+        System.out.println("-------------------- INVENTORY SUMMARY -------------------");
         for (int i = 0; i < inventory.getInventory().size(); i++) {
             if (!inventory.getInventory().get(i).getName().equals(DefaultProduct.getName())){
                 if (inventory.getInventory().size() > 1){
@@ -119,134 +120,4 @@ public class InventoryController {
 
 
     //    GABRIEL
-    // --------------------------- CREATE PRODUCT ---------------------------
-    public static void createProduct(String name, Double price, Integer quantity){
-        try {
-            File inventory = new File(localDB);
-            if(!inventory.exists()){
-                FileWriter out = new FileWriter(inventory);
-                out.append("Name,Price,Quantity\n");
-                out.close();
-            }
-
-            FileWriter writer = new FileWriter(inventory,true);
-            String newProduct = name + "," + price.toString() + "," + quantity.toString() + "\n";
-            writer.append(newProduct);
-            writer.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    // --------------------------- EDIT PRODUCT NAME ---------------------------
-    public static void editProduct(Integer productID, String newName) {
-        try{
-            Scanner sc = new Scanner(new File(localDB));
-            StringBuffer buffer = new StringBuffer();
-            String oldProduct = null;
-
-            int counter = 0;
-            while (sc.hasNextLine()) {
-                if(counter == productID){
-                    oldProduct = sc.nextLine();
-                    String[] productData = oldProduct.split(",");
-                    String newProduct = String.join(",", newName, productData[1], productData[2]);
-                    buffer.append(newProduct).append(System.lineSeparator());
-                } else {
-                    buffer.append(sc.nextLine()).append(System.lineSeparator());
-                }
-                counter++;
-            }
-            sc.close();
-            String fileContents = buffer.toString();
-
-            if(oldProduct == null) {
-                System.out.println("Não existe produto com ID " + productID);
-                return;
-            }
-
-            FileWriter writer = new FileWriter(localDB);
-            writer.write(fileContents);
-            writer.close();
-
-        } catch(IOException e){
-            e.printStackTrace();
-        }
-    }
-
-    // --------------------------- EDIT PRODUCT PRICE ---------------------------
-    public static void editProduct(Integer productID, Double newPrice){
-        try{
-            Scanner sc = new Scanner(new File(localDB));
-            StringBuffer buffer = new StringBuffer();
-            String oldProduct = null;
-
-            int counter = 0;
-            while (sc.hasNextLine()) {
-                if(counter == productID){
-                    oldProduct = sc.nextLine();
-                    String[] productData = oldProduct.split(",");
-                    String newProduct = String.join(",", productData[0], newPrice.toString(), productData[2]);
-                    buffer.append(newProduct).append(System.lineSeparator());
-                } else {
-                    buffer.append(sc.nextLine()).append(System.lineSeparator());
-                }
-                counter++;
-            }
-            sc.close();
-            String fileContents = buffer.toString();
-
-            if(oldProduct == null) {
-                System.out.println("Não existe produto com ID " + productID);
-                return;
-            }
-
-            FileWriter writer = new FileWriter(localDB);
-            writer.write(fileContents);
-            writer.close();
-
-        } catch(IOException e){
-            e.printStackTrace();
-        }
-    }
-
-    // --------------------------- EDIT PRODUCT QUANTITY ---------------------------
-    public static void editProduct(Integer productID, Integer newQuantity){
-        try{
-            Scanner sc = new Scanner(new File(localDB));
-            StringBuffer buffer = new StringBuffer();
-            String oldProduct = null;
-
-            int counter = 0;
-            while (sc.hasNextLine()) {
-                if(counter == productID){
-                    oldProduct = sc.nextLine();
-                    String[] productData = oldProduct.split(",");
-                    String newProduct = String.join(",", productData[0], productData[0], newQuantity.toString());
-                    buffer.append(newProduct).append(System.lineSeparator());
-                } else {
-                    buffer.append(sc.nextLine()).append(System.lineSeparator());
-                }
-                counter++;
-            }
-            sc.close();
-            String fileContents = buffer.toString();
-
-            if(oldProduct == null) {
-                System.out.println("Não existe produto com ID " + productID);
-                return;
-            }
-
-            FileWriter writer = new FileWriter(localDB);
-            writer.write(fileContents);
-            writer.close();
-
-        } catch(IOException e){
-            e.printStackTrace();
-        }
-    }
-
-    //    cria arquivo de produtos
-    //    ler arquivo
-    //    editar arquivo
 }
