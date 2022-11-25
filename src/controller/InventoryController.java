@@ -32,6 +32,7 @@ public class InventoryController {
     }
 
     public void writeToDB(Inventory inventory){
+        removeOutOfStockProducts(inventory);
         List<String> productsString = new ArrayList<>();
         for (int i = 0; i < inventory.getInventory().size(); i++) {
             if (!inventory.getInventory().get(i).getName().equals(DefaultProduct.getName())){
@@ -76,7 +77,7 @@ public class InventoryController {
         return DefaultProduct;
     }
 
-    public Product getProductByIdentifier(Integer identifier, Inventory inventory){
+    public Product getProductByIdentifier(int identifier, Inventory inventory){
 
         try{
             printProduct(inventory.getInventory().get(identifier), identifier);
@@ -116,10 +117,10 @@ public class InventoryController {
         for (int i = 0; i < inventory.getInventory().size(); i++) {
             if (!inventory.getInventory().get(i).getName().equals(DefaultProduct.getName())){
                 if (inventory.getInventory().size() > 0
-                        &&
-                        inventory.getInventory().get(i).getName().toLowerCase().contains(wordLetterToFilter.toLowerCase())){
-                    printProduct(inventory.getInventory().get(i), i);
-                    productFound= true;
+                    &&
+                    inventory.getInventory().get(i).getName().toLowerCase().contains(wordLetterToFilter.toLowerCase())){
+                        printProduct(inventory.getInventory().get(i), i);
+                        productFound= true;
                 }else if (!productFound){
                     System.out.println("\t Produtos semelhantes não encontrados");
                     productFound= true;
@@ -164,12 +165,13 @@ public class InventoryController {
                     + ConsoleColors.BLACK, name);
         }
     }
-    public void deleteProductByIdentifier(Integer identifier, Inventory inventory){
+    public void deleteProductByIdentifier(int identifier, Inventory inventory){
         try{
             String productName = inventory.getInventory().get(identifier).getName();
-            System.out.printf(ConsoleColors.RED+"%s foi removido com sucesso\n\n"
+              System.out.printf(ConsoleColors.RED+"%s foi removido com sucesso\n\n"
                     + ConsoleColors.BLACK, productName);
             inventory.getInventory().remove(identifier);
+            this.printAllProducts(inventory);
 
         }catch (IndexOutOfBoundsException e){
             System.out.printf(ConsoleColors.RED+"Desculpe, mas %d não representa nenhum produto em nosso estoque\n\n"
