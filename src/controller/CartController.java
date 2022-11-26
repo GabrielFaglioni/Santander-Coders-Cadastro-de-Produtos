@@ -15,7 +15,7 @@ public class CartController {
 //    valor total do carrinho
 
     public void printCartProducts(){
-        System.out.println("----------------------CART SUMMARY--------------------");
+        System.out.println("----------------------CARRINHO--------------------");
         if (Cart.cart.size() == 0)
             System.out.println("Carrinho de compras vazio.");
         else {
@@ -28,8 +28,8 @@ public class CartController {
         }
     }
 
-    public void addProductToCart(String id, int quantity){
-        Product productInventory = Inventory.getInventory().get(Integer.parseInt(id));
+    public void addProductToCart(String id, int quantity, Inventory inventory){
+        Product productInventory = inventory.getInventory().get(Integer.parseInt(id));
         Product productCart = new Product(productInventory.getName(), quantity,
                 productInventory.getPriceUnit());
         if (productInventory.getAmount() - quantity >= 0) {

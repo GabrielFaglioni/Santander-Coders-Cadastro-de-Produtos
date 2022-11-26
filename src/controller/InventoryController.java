@@ -25,6 +25,7 @@ public class InventoryController {
                             Double.parseDouble(valuesInLine[2].trim())));
                 }
             }
+
             inventory.setInventory(newProducts);
         }catch (IOException e){
             System.out.println(e.getStackTrace());
@@ -139,7 +140,7 @@ public class InventoryController {
         System.out.println("-------------------------------- PRODUTOS DISPONÍVEIS ------------------------------");
         for (int i = 0; i < inventory.getInventory().size(); i++) {
             if (!inventory.getInventory().get(i).getName().equals(DefaultProduct.getName())){
-                if (inventory.getInventory().size() > 1){
+                if (inventory.getInventory().size() > 0){
                     printProduct(inventory.getInventory().get(i), i);
                 }else {
                     System.out.println("\t O Estoque está vazio");

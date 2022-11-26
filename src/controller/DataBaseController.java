@@ -3,14 +3,57 @@ package controller;
 import view.ConsoleColors;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.Scanner;
 
 public class DataBaseController {
 
-    private static final String localDB = "inventory.csv";
+    public static final String localDB = "inventory.csv";
+
+    public static void showInventory() {
+        try{
+            File inventory = new File(localDB);
+
+            if(!inventory.exists()){
+                System.out.println("Nenhum produto cadastrado");
+                return;
+            }
+
+            Scanner sc = new Scanner(inventory);
+
+            System.out.println("-------------------------------- PRODUTOS CADASTRADOS ------------------------------");
+
+            Integer counter = 0;
+
+            while (sc.hasNextLine()) {
+                String[] productData = sc.nextLine().split(",");
+
+                System.out.println(Arrays.toString(productData));
+
+                if (counter > 0) {
+                    System.out.printf(
+                        "Identificador: %d \t Nome: %-12s  Unidades: %d \t Preço: (R$/Unit): %.2f \n",
+                        counter,
+                        productData[0],
+                        Integer.parseInt(productData[1]),
+                        Double.parseDouble(productData[2])
+                    );
+                }
+
+                counter++;
+            }
+
+            System.out.println("------------------------------------------------------------------------------------\n");
+
+            sc.close();
+        } catch(IOException e){
+            e.printStackTrace();
+        }
+    }
 
     // --------------------------- CREATE PRODUCT ---------------------------
     public static void createProduct(String name, Integer quantity, Double price){
