@@ -4,6 +4,7 @@ import model.Cart;
 import model.Inventory;
 import model.Product;
 
+import javax.xml.crypto.Data;
 import java.util.Iterator;
 
 public class CartController {
@@ -15,7 +16,7 @@ public class CartController {
 //    valor total do carrinho
 
     public void printCartProducts(){
-        System.out.println("----------------------CART SUMMARY--------------------");
+        System.out.println("----------------------CARRINHO--------------------");
         if (Cart.cart.size() == 0)
             System.out.println("Carrinho de compras vazio.");
         else {
@@ -28,8 +29,15 @@ public class CartController {
         }
     }
 
-    public void addProductToCart(String id, int quantity){
-        Product productInventory = Inventory.getInventory().get(Integer.parseInt(id));
+    public static Integer checkProductQuantity(int id, Inventory inventory){
+        Product productInventory = inventory.getInventory().get(id);
+        return productInventory.getAmount();
+    }
+
+    public void addProductToCart(int id, int quantity, Inventory inventory){
+
+        Product productInventory = inventory.getInventory().get(id);
+        DataBaseController.editProduct(id+1, productInventory.getAmount() - quantity);
         Product productCart = new Product(productInventory.getName(), quantity,
                 productInventory.getPriceUnit());
         if (productInventory.getAmount() - quantity >= 0) {
@@ -48,16 +56,22 @@ public class CartController {
             System.out.printf("Não foi possível adicionar a quantidade informada no carrinho. "
                     + "Quantidade de %s disponível em estoque: %d.\n", productInventory.getName(),
                     productInventory.getAmount());
+        InventoryController.readFromDB("inventory.csv", inventory);
     }
-    public void removeProductFromCart(String id, int quantity){
-        Product product = Cart.cart.get(Integer.parseInt(id));
-        int idInt = Integer.parseInt(id);
+    public void removeProductFromCart(int idInt, int quantity, Inventory inventory){
+        // GET ProductID index
+        int productId = InventoryController.getProductIndexByName(Cart.cart.get(idInt).getName(), inventory);
+        Product productInventory = inventory.getInventory().get(productId);
+        Product product = Cart.cart.get(idInt);
+        DataBaseController.editProduct(productId+1, productInventory.getAmount() + quantity);
+        //int idInt = id;
         if (idInt > Cart.cart.size())
             System.out.println("Por favor insira um número válido.");
         else if (product.getAmount() == quantity)
             Cart.cart.remove(idInt);
         else
             Cart.cart.get(idInt).setAmount(Cart.cart.get(idInt).getAmount() - quantity);
+        InventoryController.readFromDB("inventory.csv", inventory);
     }
     public double calculateCartTotal(){
         double cartTotal = 0d;

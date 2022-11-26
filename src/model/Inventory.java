@@ -17,6 +17,18 @@ public class Inventory {
         return this.inventory;
     }
 
+    public int getProductByName(String name,Cart cart){
+        boolean ProductFound;
+        for (int i = 0; i < Cart.cart.size(); i++) {
+            ProductFound = Cart.cart.get(i).getName().trim().toLowerCase().equals(name.trim().toLowerCase());
+            if (ProductFound){
+                return i;
+            }
+        }
+        System.out.printf("We are sorry, but %s was not found in your cart.\n\n", name);
+        return -1;
+    }
+
     public void setInventory(ArrayList<Product> inventory) {
         this.inventory = inventory;
     }
