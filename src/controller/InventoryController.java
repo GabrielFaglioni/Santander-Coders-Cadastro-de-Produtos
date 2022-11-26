@@ -35,14 +35,14 @@ public class InventoryController {
     public void writeToDB(Inventory inventory){
         removeOutOfStockProducts(inventory);
         List<String> productsString = new ArrayList<>();
+        productsString.add("Name,Quantity,Price");
         for (int i = 0; i < inventory.getInventory().size(); i++) {
             if (!inventory.getInventory().get(i).getName().equals(DefaultProduct.getName())){
                 productsString.add(productToString(inventory.getInventory().get(i)));
             }
         }
-
         try {
-            Files.write(Path.of("teste.txt"), productsString);
+            Files.write(Path.of("inventory.csv"), productsString);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -182,13 +182,13 @@ public class InventoryController {
         try{
             String productName = inventory.getInventory().get(identifier).getName();
               System.out.printf(ConsoleColors.RED+"%s foi removido com sucesso\n\n"
-                    + ConsoleColors.BLACK, productName);
+                    + ConsoleColors.RESET, productName);
             inventory.getInventory().remove(identifier);
             this.printAllProducts(inventory);
 
         }catch (IndexOutOfBoundsException e){
             System.out.printf(ConsoleColors.RED+"Desculpe, mas %d não representa nenhum produto em nosso estoque\n\n"
-                    + ConsoleColors.BLACK, identifier);
+                    + ConsoleColors.RESET, identifier);
         }catch (Exception e){
             e.printStackTrace();
         }

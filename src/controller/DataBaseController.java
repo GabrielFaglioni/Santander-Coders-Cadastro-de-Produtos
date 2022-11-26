@@ -32,19 +32,17 @@ public class DataBaseController {
             while (sc.hasNextLine()) {
                 String[] productData = sc.nextLine().split(",");
 
-                System.out.println(Arrays.toString(productData));
 
-                if (counter > 0) {
+                if (!productData[0].equalsIgnoreCase("name")) {
                     System.out.printf(
                         "Identificador: %d \t Nome: %-12s  Unidades: %d \t Preço: (R$/Unit): %.2f \n",
                         counter,
-                        productData[0],
-                        Integer.parseInt(productData[1]),
-                        Double.parseDouble(productData[2])
+                        productData[0].trim(),
+                        Integer.parseInt(productData[1].trim()),
+                        Double.parseDouble(productData[2].trim())
                     );
+                    counter++;
                 }
-
-                counter++;
             }
 
             System.out.println("------------------------------------------------------------------------------------\n");

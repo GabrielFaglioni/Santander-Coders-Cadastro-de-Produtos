@@ -15,50 +15,108 @@ public class MainView {
     Scanner sc = new Scanner(System.in);
     public void startMenu() {
 
-
-
         DataBaseController.createProduct("Batata", 10, 1.00);
 
+        System.out.println("Digite a opção desejada: ");
+        System.out.println("1 - Comprar");
+        System.out.println("2 - Gerenciar Estoque (ADMIN)");
+        System.out.println("0 - Sair");
 
-        //boolean menuLoop = true;
+        String choice = sc.next();
 
-        //hile(menuLoop){
+        switch (choice) {
+            case "1" -> cartMenu();
+            case "2" -> inventoryMenu();
+            case "0" -> System.out.println("Obrigado volte sempre");
+            default -> System.out.println("Digite opção válida");
+        }
+    }
+
+    public void inventoryMenu(){
+        boolean loop = true;
+        while(loop){
             System.out.println("Digite a opção desejada: ");
-            System.out.println("1 - Comprar");
-            System.out.println("2 - Gerenciar Estoque (ADMIN)");
+            System.out.println("1 - Adicionar produto no banco de dados");
+            System.out.println("2 - Remover produto no banco de dados");
+            System.out.println("3 - Ver os produtos no banco de dados");
             System.out.println("0 - Sair");
 
             String choice = sc.next();
 
             switch (choice) {
-                case "1" -> {
-//                    menuLoop = false;
-                    cartMenu();
-                }
-                case "2" -> {
-//                    menuLoop = false;
-                    System.out.println("inventoryMenu()");
-                }
+                case "1" -> addToDB();
+                case "2" -> removeFromDB();
+                case "3" -> DataBaseController.showInventory();
+
                 case "0" -> {
-                    //menuLoop = false;
-                    System.out.println("Obrigado volte sempre");
+                    loop = false;
+                    System.out.println("Obrigado, volte sempre!");
                 }
+
                 default -> System.out.println("Digite opção válida");
             }
-        //}
+        }
     }
 
-//    Venda de produtos, onde o usuário pode escolher produtos e
-//    quantidades conforme ele queira, assim que escolher finalizar,
-//    mostre tudo que ele comprou, os preços e o total. Quando ele for
-//    escolher o produto e quantidade, faça uma verificação se o produto
-//    tem aquela quantidade, caso não tenha, informa ao usuário que não
-//    contém a quantidade deste produto no estoque. Assim que o usuário
-//    confirmar a compra, deduza as quantidades dos produtos selecionados.
+    public void addToDB(){
+        System.out.print(ConsoleColors.WHITE_BOLD_BRIGHT + "Insira o nome do produto que deseja adicionar no banco de dados: " + ConsoleColors.RESET);
+        sc.nextLine();
+
+        String itemName = sc.nextLine();
+
+        System.out.println("\nAgora insira o preço do produto em reais (utilize ',' para separação decimal, e não coloque R$)");
+        double itemPrice;
+        do {
+            System.out.print("Digite o preço do produto em reais: ");
+            while (!sc.hasNextDouble()) {
+                System.out.print("Por favor digite um preço válido: ");
+                sc.next();
+            }
+            itemPrice = sc.nextDouble();
+            if(itemPrice <= 0) System.out.println("Por Favor digite um preço maior que zero");
+        } while (itemPrice <=  0);
+
+        System.out.println("\nPor fim, digite a quantidade deste produto que deseja comprar (máximo de 99)");
+        int itemQty;
+        do {
+            System.out.print("Digite a quantidade desejada do produto: ");
+            while (!sc.hasNextDouble()) {
+                System.out.print("Por favor digite uma quantidade válida: ");
+                sc.next();
+            }
+            itemQty = sc.nextInt();
+            if(itemQty <= 0) System.out.println("Por Favor digite uma quantidade maior que zero");
+            if(itemQty > 99) System.out.println("Por Favor digite uma quantidade menor que 99");
+        } while (itemQty <= 0 || itemQty > 99);
+
+        DataBaseController.createProduct(itemName.trim(), itemQty, itemPrice);
+    }
+
+    public void removeFromDB(){
+        InventoryController inventoryController = new InventoryController();
+        Inventory inventory = new Inventory();
+        InventoryController.readFromDB("inventory.csv", inventory);
+        DataBaseController.showInventory();
+        int itemID;
+        do {
+            System.out.println("Por favor digite o ID do produto que voce quer remover do banco de dados");
+            while (!sc.hasNextDouble()) {
+                System.out.print("Por favor digite um ID válido ");
+                sc.next();
+            }
+            itemID = sc.nextInt();
+            if(itemID < 0) System.out.println("Por Favor digite um ID válido");
+        } while (itemID < 0);
+
+        inventoryController.deleteProductByIdentifier(itemID, inventory);
+        inventoryController.removeOutOfStockProducts(inventory);
+        inventoryController.writeToDB(inventory);
+
+    }
     public void cartMenu() {
         System.out.println("COMPRAR");
 
-        inventoryController.readFromDB("inventory.csv", inventory);
+        InventoryController.readFromDB("inventory.csv", inventory);
 
         //cartController.printCartProducts();
         boolean loop = true;
@@ -151,6 +209,4 @@ public class MainView {
         cartController.removeProductFromCart(itemID, itemQty, inventory);
         cartController.printCartProducts();
     }
-
-
 }
